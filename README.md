@@ -20,6 +20,8 @@ node dist/cli.js --help
 ## 常用命令
 
 ```bash
+spec-power init codex
+spec-power init claude
 spec-power init --agents codex,claude --profile multi-module
 spec-power new smart-table-import --type feature --modules api,web
 spec-power check
@@ -31,7 +33,7 @@ spec-power sync --check
 
 ## 命令说明
 
-- `init`：在当前项目生成 SDD 工作流文档、模板、`.specpower/upstream.lock`、`AGENTS.md` 和 `CLAUDE.md`。
+- `init [agents...]`：在当前项目生成 SDD 工作流文档、模板、`.specpower/upstream.lock` 和指定 Agent 入口；例如 `spec-power init codex` 只生成 Codex 入口，`spec-power init claude` 只生成 Claude 入口。
 - `new <slug>`：创建 `specs/NNN-<slug>/spec.md`、`plan.md`、`tasks.md`。
 - `check`：检查项目是否已正确接入 SpecPower。
 - `doctor`：只读诊断 Git、Spec Kit CLI、Agent 入口和本地敏感文件提示。
