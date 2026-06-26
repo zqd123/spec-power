@@ -7,6 +7,14 @@ import type { Agent } from "../core/options.js";
 
 type Level = "error" | "warning" | "info";
 
+const requiredHarnessStandards = [
+  ".specpower/standards/AGENTS.md",
+  ".specpower/standards/api-contract.md",
+  ".specpower/standards/backend.md",
+  ".specpower/standards/frontend.md",
+  ".specpower/standards/testing.md"
+];
+
 interface CheckResult {
   level: Level;
   message: string;
@@ -35,6 +43,9 @@ export async function runChecks(cwd: string): Promise<CheckResult[]> {
   await requireFile(cwd, ".specpower/templates/spec-template.md", results);
   await requireFile(cwd, ".specpower/templates/plan-template.md", results);
   await requireFile(cwd, ".specpower/templates/tasks-template.md", results);
+  for (const standardPath of requiredHarnessStandards) {
+    await requireFile(cwd, standardPath, results);
+  }
   await requireDirectory(cwd, "specs", results);
 
   const lockfile = await readLockfile(cwd);
@@ -45,10 +56,10 @@ export async function runChecks(cwd: string): Promise<CheckResult[]> {
 
   for (const agent of agents) {
     if (agent === "codex") {
-      await requireAgentEntry(cwd, "AGENTS.md", results);
+      await requireAgentEntry(cwd, "AGENTS.md", results, { requireHarnessStandards: true });
     }
     if (agent === "claude") {
-      await requireAgentEntry(cwd, "CLAUDE.md", results);
+      await requireAgentEntry(cwd, "CLAUDE.md", results, { requireHarnessStandards: false });
     }
   }
 
@@ -84,7 +95,12 @@ async function inferAgents(cwd: string): Promise<Agent[]> {
   return agents;
 }
 
-async function requireAgentEntry(cwd: string, relativePath: string, results: CheckResult[]): Promise<void> {
+async function requireAgentEntry(
+  cwd: string,
+  relativePath: string,
+  results: CheckResult[],
+  options: { requireHarnessStandards: boolean }
+): Promise<void> {
   const absolutePath = path.join(cwd, relativePath);
   if (!(await pathExists(absolutePath))) {
     results.push({ level: "error", message: `Missing enabled Agent entry: ${relativePath}` });
@@ -95,6 +111,12 @@ async function requireAgentEntry(cwd: string, relativePath: string, results: Che
     results.push({
       level: "warning",
       message: `${relativePath} exists but does not clearly reference SDD_WORKFLOW.md and specs/.`
+    });
+  }
+  if (options.requireHarnessStandards && !content.includes(".specpower/standards/")) {
+    results.push({
+      level: "warning",
+      message: `${relativePath} exists but does not clearly reference .specpower/standards/.`
     });
   }
 }

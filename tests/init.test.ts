@@ -12,13 +12,30 @@ describe("init file planning", () => {
     const cwd = await mkdtemp(path.join(tmpdir(), "spec-power-"));
     const files = renderInitFiles({ profile: "multi-module", agents: ["codex", "claude"] });
     const actions = await planFiles(cwd, files, {});
+    const sharedRules = files.find((file) => file.path === ".specpower/standards/AGENTS.md");
 
+    expect(files.some((file) => file.path.startsWith(".specpower/harness-templates/"))).toBe(false);
+    expect(sharedRules?.content).toContain("共享 Agent 规则");
+    expect(sharedRules?.content).toContain("执行规则");
     expect(actions.every((action) => action.action === "create")).toBe(true);
     await applyFileActions(cwd, actions);
 
+    const agentEntry = await readFile(path.join(cwd, "AGENTS.md"), "utf8");
+    const claudeEntry = await readFile(path.join(cwd, "CLAUDE.md"), "utf8");
     await expect(pathExists(path.join(cwd, "SDD_WORKFLOW.md"))).resolves.toBe(true);
     await expect(pathExists(path.join(cwd, "AGENTS.md"))).resolves.toBe(true);
     await expect(pathExists(path.join(cwd, "CLAUDE.md"))).resolves.toBe(true);
+    await expect(pathExists(path.join(cwd, ".specpower", "standards", "AGENTS.md"))).resolves.toBe(true);
+    await expect(pathExists(path.join(cwd, ".specpower", "standards", "api-contract.md"))).resolves.toBe(true);
+    await expect(pathExists(path.join(cwd, ".specpower", "standards", "backend.md"))).resolves.toBe(true);
+    await expect(pathExists(path.join(cwd, ".specpower", "standards", "frontend.md"))).resolves.toBe(true);
+    await expect(pathExists(path.join(cwd, ".specpower", "standards", "testing.md"))).resolves.toBe(true);
+    expect(agentEntry).toContain("SDD_WORKFLOW.md");
+    expect(agentEntry).toContain(".specpower/standards/");
+    expect(agentEntry).toContain("Codex 项目入口");
+    expect(claudeEntry).toContain("SDD_WORKFLOW.md");
+    expect(claudeEntry).toContain(".specpower/standards/");
+    expect(claudeEntry).toContain("Claude Code 项目入口");
     await expect(pathExists(path.join(cwd, ".specpower", "upstream.lock"))).resolves.toBe(true);
   });
 
