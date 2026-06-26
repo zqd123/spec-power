@@ -1,0 +1,33 @@
+{
+  "name": "spec-power",
+  "version": "0.1.0",
+  "description": "A lightweight CLI for adopting Spec Kit and Superpowers-oriented SDD workflows in any project.",
+  "type": "module",
+  "bin": {
+    "spec-power": "./dist/cli.js",
+    "power": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "README.md",
+    "SPECPOWER_CLI_IMPLEMENTATION_PLAN.md"
+  ],
+  "scripts": {
+    "build": "tsc && chmod +x dist/cli.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "npm run typecheck"
+  },
+  "dependencies": {
+    "commander": "^14.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
